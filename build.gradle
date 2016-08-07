@@ -27,11 +27,20 @@ dependencies {
     compile("org.springframework.boot:spring-boot-starter")
 	compile("org.springframework:spring-web")
 	compile("com.fasterxml.jackson.core:jackson-databind")
+	compile("net.sf.supercsv:super-csv:2.4.0")
     testCompile("junit:junit")
+    testCompile("org.skyscreamer:jsonassert")
+    testCompile("org.springframework.boot:spring-boot-starter-test")
 }
 
 bootRun {
     if ( project.hasProperty('args') ) {
         args project.args.split('\\s+')
+    }
+}
+
+test {
+	testLogging {
+        events "passed", "skipped", "failed"
     }
 }
