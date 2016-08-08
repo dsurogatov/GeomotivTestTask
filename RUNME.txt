@@ -1,0 +1,15 @@
+What you’ll need
+
+* JDK 1.8 or later (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+* Gradle 2.3+  (https://gradle.org/gradle-download/)
+
+Build an executable JAR:
+$ gradle build
+
+Then you can run the JAR file:
+$ java -jar build/libs/geomotive-test-task-0.1.0.jar ./input output.json
+
+If you are using Gradle, you can run the application using ./gradle bootRun  -Pargs="./input output.json" .
+
+Run tests:
+$ gradle test
