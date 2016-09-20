@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableAsync;
 
@@ -27,16 +26,13 @@ public class Application implements CommandLineRunner {
 	private static final String CSV_FILE = "input1.csv";
 	private static final String JSON_FILE = "input2.json";
 	
-	public static void main(String[] args) {
-		if (args.length != 2) {
-			System.out.println("Usage application with options:\n" 
-					+ "arg1		 the folder name with input files\n"
-			        + "arg2		 the output file name");
-			return;
-		}
-		
-		SpringApplication.run(Application.class, args);
-	}
+	// PLAN
+	// делаем параметр через файл пропертей, там передаем список файлов через запятую
+
+	// делаем бин, в котором используем проперти, параметр к файлам
+	// который разгребает списки файлов, парсит имена, валидирует и отправляет на обработку нужным бинам
+	
+	// делаем второй бин, консумер, котороый тупо принимает от продусеров пакеты данных, он их пишет в файл
 	
 	/** 
 	 * Get a result from a future object
