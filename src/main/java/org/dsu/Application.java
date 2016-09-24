@@ -19,9 +19,6 @@ public class Application implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 	
-//	private static final String CSV_FILE = "input1.csv";
-//	private static final String JSON_FILE = "input2.json";
-	
     @Bean
     public Executor taskExecutor() {
         return new SimpleAsyncTaskExecutor();
@@ -64,7 +61,7 @@ public class Application implements CommandLineRunner {
 		LOG.info("App start ================================== ");
 		LOG.info("Args: {}", Arrays.toString(args));
 		
-		fileReaderWorker.start();
+		fileReaderWorker.start(null);
 
 //		Future<List<Site>> csvResult = csvSiteFileReaderService.readFile(args[0], CSV_FILE);
 //		Future<List<Site>> jsonResult = jsonSiteFileReaderService.readFile(args[0], JSON_FILE);
