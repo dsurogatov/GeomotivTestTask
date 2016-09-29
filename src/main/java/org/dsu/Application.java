@@ -3,10 +3,12 @@ package org.dsu;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
+import org.dsu.commom.Constant;
 import org.dsu.component.worker.Worker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +25,11 @@ public class Application implements CommandLineRunner {
     public Executor taskExecutor() {
         return new SimpleAsyncTaskExecutor();
     }
+    
+    @Value("${" + Constant.PARAM_INPUT_FILES_NAMES + ":" + Constant.DEFAULT_PARAM_INPUT_FILES_NAMES + "}")
+    private String inputFilesProperty;
+    @Value("${" + Constant.PARAM_INPUT_FILES_NAMES_SEPARATOR + ":" + Constant.DEFAULT_PARAM_INPUT_FILES_NAMES_SEPARATOR + "}")
+    private String separatorFilesProperty;
 	
 	// PLAN
 	// делаем параметр через файл пропертей, там передаем список файлов через запятую

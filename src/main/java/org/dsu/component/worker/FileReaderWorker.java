@@ -3,6 +3,7 @@
  */
 package org.dsu.component.worker;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,70 +30,91 @@ import org.springframework.util.StringUtils;
 @Component
 class FileReaderWorker implements Worker {
 
-	private static final Logger LOG = LoggerFactory.getLogger(FileReaderWorker.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FileReaderWorker.class);
 
-	@Value("${input.files:input1.csv,input2.json}")
-	private String inputFilesProperty;
-	@Value("${separator.files:,}")
-	private String separatorFilesProperty;
+    private static String getStringParamByName(Map<String, Object> params, String paramName) {
+        if (params == null) {
+            LOG.info("The parameter 'params' cannot be null.");
+            return null;
+        }
+        if (StringUtils.isEmpty(paramName)) {
+            LOG.info("The parameter 'paramName' cannot be empty.");
+            return null;
+        }
+        if (!params.containsKey(paramName)) {
+            LOG.info("The '{}' name has not set.", paramName);
+            return null;
+        }
+        Object param = params.get(paramName);
+        if (param == null || !(param instanceof String)) {
+            LOG.info("The '{}' name has not set.", paramName);
+            return null;
+        }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.dsu.component.worker.Worker#start()
-	 */
-	@Override
-	@Async
-	public Future<Boolean> start(Map<String, Object> params) {
-		String inputFolderName = getFolderName(params);
-		if (inputFolderName == null) {
-			return RETURN_FAIL;
-		}
+        return (String) param;
+    }
 
-		LOG.debug("Start. Folder is '{}'. Files are '{}'. Separator is '{}'", inputFolderName, inputFilesProperty,
-		        separatorFilesProperty);
+    private static Set<Path> getFiles(Map<String, Object> params, String inputFolderName) {
+        Set<Path> retSet = new HashSet<>();
 
-		// TODO Auto-generated method stub
-		Set<String> fileNames = getFileNamesFromString();
-		
-		return RETURN_OK;
-	}
+        if (params == null) {
+            LOG.info("The parameter 'params' cannot be null.");
+            return null;
+        }
+        if (inputFolderName == null) {
+            LOG.info("The parameter 'inputFolderName' cannot be null.");
+            return null;
+        }
 
-	private String getFolderName(Map<String, Object> params) {
-		if (params == null) {
-			LOG.info("The parameter 'params' cannot be null.");
-			return null;
-		}
-		if (!params.containsKey(Constant.PARAM_INPUT_FOLDER_NAME)) {
-			LOG.info("The input folder name has not set.");
-			return null;
-		}
-		Object inputFolder = params.get(Constant.PARAM_INPUT_FOLDER_NAME);
-		if (inputFolder == null || !(inputFolder instanceof String)) {
-			LOG.info("The input folder name has not set.");
-			return null;
-		}
+        String inputFilesNames = getStringParamByName(params, Constant.PARAM_INPUT_FILES_NAMES);
+        if (StringUtils.isEmpty(inputFilesNames)) {
+            return retSet;
+        }
 
-		String inputFolderName = (String) inputFolder;
-		if (Files.notExists(Paths.get(inputFolderName))) {
-			LOG.info("The input folder '{}' is not exist.", inputFolderName);
-			return null;
-		}
-		return inputFolderName;
-	}
+        String inputFilesNamesSeparator = getStringParamByName(params, Constant.PARAM_INPUT_FILES_NAMES_SEPARATOR);
+        if (StringUtils.isEmpty(inputFilesNamesSeparator)) {
+            inputFilesNamesSeparator = Constant.DEFAULT_PARAM_INPUT_FILES_NAMES_SEPARATOR;
+        }
 
-	private Set<String> getFileNamesFromString() {
-		Set<String> retSet = new HashSet<>();
-		if (StringUtils.isEmpty(inputFilesProperty) || StringUtils.isEmpty(separatorFilesProperty)) {
-			LOG.info("The 'inputFilesProperty' or 'separatorFilesProperty' is empty.");
-			return retSet;
-		}
+        StringTokenizer tokenizer = new StringTokenizer(inputFilesNames, inputFilesNamesSeparator);
+        while (tokenizer.hasMoreTokens()) {
+            String fileUri = inputFolderName + File.separatorChar + tokenizer.nextToken();
+            LOG.debug("Input file is {}", fileUri);
 
-		StringTokenizer tokenizer = new StringTokenizer(inputFilesProperty, separatorFilesProperty);
-		while (tokenizer.hasMoreTokens()) {
-			retSet.add(tokenizer.nextToken());
-		}
-		return retSet;
-	}
+            Path pathFile = Paths.get(fileUri);
+            if (Files.exists(pathFile)) {
+                retSet.add(pathFile);
+            }
+        }
+
+        return retSet;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.dsu.component.worker.Worker#start()
+     */
+    @Override
+    @Async
+    public Future<Boolean> start(Map<String, Object> params) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Start. Params is '{}'.", params.toString());
+        }
+        
+        String inputFolderName = getStringParamByName(params, Constant.PARAM_INPUT_FOLDER_NAME);
+        if (inputFolderName == null) {
+            return RETURN_FAIL;
+        }
+
+        Set<Path> inputFiles = getFiles(params, inputFolderName);
+        if (inputFiles.isEmpty()) {
+            return RETURN_FAIL;
+        }
+
+        // TODO Auto-generated method stub
+
+        return RETURN_OK;
+    }
 
 }

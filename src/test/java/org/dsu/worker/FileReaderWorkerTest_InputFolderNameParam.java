@@ -18,7 +18,7 @@ import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
-public class FileReaderWorkerTest {
+public class FileReaderWorkerTest_InputFolderNameParam {
 	
 	@Autowired
 	private Worker fileReaderWorker;
