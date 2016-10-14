@@ -13,7 +13,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.Future;
 
-import org.dsu.commom.Constant;
+import org.dsu.common.Constant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -113,6 +113,9 @@ class FileReaderWorker implements Worker {
         }
 
         // TODO Auto-generated method stub
+        inputFiles.forEach(path -> {
+            
+        });
 
         return RETURN_OK;
     }

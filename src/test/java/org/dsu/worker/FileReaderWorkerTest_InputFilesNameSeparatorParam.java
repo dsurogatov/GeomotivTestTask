@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.dsu.TestConfig;
-import org.dsu.commom.Constant;
+import org.dsu.common.Constant;
 import org.dsu.component.worker.Worker;
 import org.junit.Before;
 import org.junit.Test;
