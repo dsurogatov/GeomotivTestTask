@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 
 import org.dsu.domain.Site;
+import org.dsu.domain.SiteBunch;
 import org.dsu.service.sitereader.SiteFileReaderService;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,17 +33,21 @@ public class CsvSiteReaderServiceTest {
 	private SiteFileReaderService csvSiteFileReaderService;
 
 	@Test
-	public void readFile_WithValidData_ShouldReturnSiteEntries() throws InterruptedException, ExecutionException, IOException {
+	public void givenFileWithValidData_ReadFile_ShouldReturnTrue() throws InterruptedException, ExecutionException, IOException {
 		File temp = folder.newFile("input1.csv");
 		String content = "id,name,is mobile,score\n" 
 				   + "12000,example.com/csv1,true,454.23\n"
 		           + "12001,example.com/csv2,true,128\n" 
 				   + "12002,example.com/csv3,false,522\n";
-		Files.write(Paths.get(temp.getCanonicalPath()), content.getBytes());
+		Files.write(temp.toPath(), content.getBytes());
 		
-		List<Site> sites = csvSiteFileReaderService.readFile(temp.getParent(), temp.getName()).get();
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = csvSiteFileReaderService.readFile(temp.toPath(), queue);
+		TestCase.assertEquals(queue.size(), 1);
+		TestCase.assertTrue(result);
+
+		List<Site> sites = queue.take().getSites();
 		//System.out.println(""+sites);
-		TestCase.assertEquals(sites.size(), 3);
 		Site site1 = sites.get(0);
 		TestCase.assertEquals(site1.getId(), 12000);
 		TestCase.assertEquals(site1.getName(), "example.com/csv1");
@@ -49,28 +55,42 @@ public class CsvSiteReaderServiceTest {
 		TestCase.assertEquals(site1.getScore(), BigDecimal.valueOf(454.23));
 	}
 	
+	// TODO write test for 100 sites in one bunch
+	
 	@Test
-	public void readFile_WithNoValidData_ShouldReturnEmptyList() throws InterruptedException, ExecutionException, IOException {
+	public void givenFileWithNoValidData_WhenRead_ThenReturnFalse() throws InterruptedException, ExecutionException, IOException {
 		File temp = folder.newFile("input1.csv");
 		String content = "id,name,is mobile,score\n" 
 				   + "12000example.com/csv1,true,454\n"
 		           + "12001,example.com/csv2,true,128\n" 
 				   + "12002,example.com/csv3,false,522\n";
-		Files.write(Paths.get(temp.getCanonicalPath()), content.getBytes());
+		Files.write(temp.toPath(), content.getBytes());
 		
-		List<Site> sites = csvSiteFileReaderService.readFile(temp.getParent(), temp.getName()).get();
-		TestCase.assertEquals(sites.isEmpty(), true);
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = csvSiteFileReaderService.readFile(temp.toPath(), queue);
+		TestCase.assertEquals(queue.isEmpty(), true);
+		TestCase.assertFalse(result);
 	}
 	
 	@Test
-	public void readFile_NoExistsFile_ShouldReturnEmptyList() throws InterruptedException, ExecutionException {
-		List<Site> sites = csvSiteFileReaderService.readFile("a", "b").get();
-		TestCase.assertEquals(sites.isEmpty(), true);
+	public void givenNoExistsFile_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = csvSiteFileReaderService.readFile(new File("a/b").toPath(), queue);
+		TestCase.assertEquals(queue.isEmpty(), true);
+		TestCase.assertFalse(result);
 	}
 	
 	@Test
-	public void readFile_WithNullInputParams_ShouldReturnEmptyList() throws InterruptedException, ExecutionException {
-		List<Site> sites = csvSiteFileReaderService.readFile(null, null).get();
-		TestCase.assertEquals(sites.isEmpty(), true);
+	public void givenNullPath_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = csvSiteFileReaderService.readFile(null, queue);
+		TestCase.assertEquals(queue.isEmpty(), true);
+		TestCase.assertFalse(result);
+	}
+	
+	@Test
+	public void givenNullQueue_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+		boolean result = csvSiteFileReaderService.readFile(new File("a/b").toPath(), null);
+		TestCase.assertFalse(result);
 	}
 }

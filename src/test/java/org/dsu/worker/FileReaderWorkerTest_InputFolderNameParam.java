@@ -23,15 +23,15 @@ public class FileReaderWorkerTest_InputFolderNameParam {
 	@Autowired
 	private Worker fileReaderWorker;
 
-	@Test
-	public void whenPassValidFolderName_ThenReturnTrue() throws Exception {
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put(Constant.PARAM_INPUT_FOLDER_NAME, Paths.get("").toAbsolutePath().toString());
-		
-		Future<Boolean> task = fileReaderWorker.start(params);
-		
-		TestCase.assertEquals(true, task.get().booleanValue());
-	}
+//	@Test
+//	public void whenPassValidFolderName_ThenReturnTrue() throws Exception {
+//		Map<String, Object> params = new HashMap<String, Object>();
+//		params.put(Constant.PARAM_INPUT_FOLDER_NAME, Paths.get("").toAbsolutePath().toString());
+//		
+//		Future<Boolean> task = fileReaderWorker.start(params);
+//		
+//		TestCase.assertEquals(true, task.get().booleanValue());
+//	}
 	
 	@Test
 	public void whenPassNovalidFolderName_ThenReturnFalse() throws Exception {

@@ -98,10 +98,6 @@ class FileReaderWorker implements Worker {
     @Override
     @Async
     public Future<Boolean> start(Map<String, Object> params) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Start. Params is '{}'.", params.toString());
-        }
-        
         String inputFolderName = getStringParamByName(params, Constant.PARAM_INPUT_FOLDER_NAME);
         if (inputFolderName == null) {
             return RETURN_FAIL;
@@ -110,6 +106,10 @@ class FileReaderWorker implements Worker {
         Set<Path> inputFiles = getFiles(params, inputFolderName);
         if (inputFiles.isEmpty()) {
             return RETURN_FAIL;
+        }
+        
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Start. Params is '{}'.", params.toString());
         }
 
         // TODO Auto-generated method stub

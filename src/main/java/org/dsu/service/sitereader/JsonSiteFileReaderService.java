@@ -4,11 +4,15 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
 import org.dsu.domain.Site;
+import org.dsu.domain.SiteBunch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -77,22 +81,34 @@ class JsonSiteFileReaderService implements SiteFileReaderService {
 
 	@Override
 	@Async
-	public Future<List<Site>> readFile(String folder, String fileName) {
-		String file = folder + File.separator + fileName;
-
+	public boolean readFile(Path path, BlockingQueue<SiteBunch> queue) {
+		if (path == null) {
+			LOG.warn("The parameter 'path' cannot be null.");
+			return false;
+		}
+		if (queue == null) {
+			LOG.warn("The parameter 'queue' cannot be null.");
+			return false;
+		}
+		if (Files.exists(path)) {
+			LOG.warn("The file {} is not exists.", path.toString());
+			return false;
+		}
+		// TODO create default method
+		
 		ObjectMapper mapper = new ObjectMapper();
 		SimpleModule module = new SimpleModule();
 		module.addDeserializer(Site.class, new SiteJsonDeserializer());
 		mapper.registerModule(module);
 
 		try {
-			List<Site> sites = mapper.readValue(new FileReader(file), new TypeReference<List<Site>>() {	});
-			return new AsyncResult<List<Site>>(sites);
+			List<Site> sites = mapper.readValue(Files.newBufferedReader(path), new TypeReference<List<Site>>() {	});
+			return true;
 		} catch (Exception e) {
-			LOG.error("Error while was parsing file: {}.", file, e);
+			LOG.error("Error while was parsing file: {}.", path.toString(), e);
 		}
 
-		return new AsyncResult<List<Site>>(new ArrayList<>());
+		return false;
 	}
 
 }

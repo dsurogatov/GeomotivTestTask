@@ -3,12 +3,15 @@
  */
 package org.dsu.component.sitereader;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
 import org.dsu.common.Constant;
 import org.dsu.domain.Site;
+import org.dsu.domain.SiteBunch;
 import org.dsu.service.sitereader.SiteFileReaderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.AsyncResult;
@@ -26,8 +29,8 @@ public class SiteFileReaderServiceLocatorImpl implements SiteFileReaderServiceLo
     private final static SiteFileReaderService EMPTY_SITE_FILE_READER_SERVICE = new SiteFileReaderService() {
 
         @Override
-        public Future<List<Site>> readFile(String folder, String fileName) {
-            return new AsyncResult<List<Site>>(new ArrayList<>());
+        public boolean readFile(Path path, BlockingQueue<SiteBunch> queue) {
+            return true;
         }
     };
 

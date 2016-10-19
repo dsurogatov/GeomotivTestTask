@@ -6,9 +6,12 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 
 import org.dsu.domain.Site;
+import org.dsu.domain.SiteBunch;
 import org.dsu.service.sitereader.SiteFileReaderService;
 import org.junit.Rule;
 import org.junit.Test;
@@ -31,7 +34,7 @@ public class JsonSiteReaderServiceTest {
 	private SiteFileReaderService jsonSiteFileReaderService;
 	
 	@Test
-	public void readFile_WithValidData_ShouldReturnSiteEntries() throws InterruptedException, ExecutionException, IOException {
+	public void givenFileWithValidData_ReadFile_ShouldReturnTrue() throws InterruptedException, ExecutionException, IOException {
 		File temp = folder.newFile("input2.json");
 		String content = "[\n"
 		                  + "{\"site_id\": \"13000\", \"name\": \"example.com/json1\", \"mobile\": 1, \"score\": 21.003 },\n"
@@ -40,7 +43,12 @@ public class JsonSiteReaderServiceTest {
 		               + "]\n";
 		Files.write(Paths.get(temp.getCanonicalPath()), content.getBytes());
 		
-		List<Site> sites = jsonSiteFileReaderService.readFile(temp.getParent(), temp.getName()).get();
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = jsonSiteFileReaderService.readFile(temp.toPath(), queue);
+		TestCase.assertEquals(queue.size(), 1);
+		TestCase.assertTrue(result);
+		
+		List<Site> sites = queue.take().getSites();
 		//System.out.println(""+sites);
 		TestCase.assertEquals(sites.size(), 3);
 		Site site1 = sites.get(0);
@@ -51,26 +59,38 @@ public class JsonSiteReaderServiceTest {
 	}
 	
 	@Test
-	public void readFile_WithNoValidData_ShouldReturnEmptyList() throws InterruptedException, ExecutionException, IOException {
+	public void givenFileWithNoValidData_WhenRead_ThenReturnFalse() throws InterruptedException, ExecutionException, IOException {
 		File temp = folder.newFile("input2.json");
 		String content = "[\n"
                 + "{\"site_id\": \"novalid\", \"name\": \"example.com/json1\", \"mobile\": 1, \"score\": 21 },\n"
              + "]\n";
 		Files.write(Paths.get(temp.getCanonicalPath()), content.getBytes());
 		
-		List<Site> sites = jsonSiteFileReaderService.readFile(temp.getParent(), temp.getName()).get();
-		TestCase.assertEquals(sites.isEmpty(), true);
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = jsonSiteFileReaderService.readFile(temp.toPath(), queue);
+		TestCase.assertEquals(queue.isEmpty(), true);
+		TestCase.assertFalse(result);
 	}
 	
 	@Test
-	public void readFile_NoExistsFile_ShouldReturnEmptyList() throws InterruptedException, ExecutionException {
-		List<Site> sites = jsonSiteFileReaderService.readFile("a", "b").get();
-		TestCase.assertEquals(sites.isEmpty(), true);
+	public void givenNoExistsFile_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = jsonSiteFileReaderService.readFile(new File("a/b").toPath(), queue);
+		TestCase.assertEquals(queue.isEmpty(), true);
+		TestCase.assertFalse(result);
 	}
 	
 	@Test
-	public void readFile_WithNullInputParams_ShouldReturnEmptyList() throws InterruptedException, ExecutionException {
-		List<Site> sites = jsonSiteFileReaderService.readFile(null, null).get();
-		TestCase.assertEquals(sites.isEmpty(), true);
+	public void givenNullPath_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
+		boolean result = jsonSiteFileReaderService.readFile(null, queue);
+		TestCase.assertEquals(queue.isEmpty(), true);
+		TestCase.assertFalse(result);
+	}
+	
+	@Test
+	public void givenNullQueue_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+		boolean result = jsonSiteFileReaderService.readFile(new File("a/b").toPath(), null);
+		TestCase.assertFalse(result);
 	}
 }
