@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
@@ -31,6 +32,7 @@ dependencies {
     testCompile("junit:junit")
     testCompile("org.skyscreamer:jsonassert")
     testCompile("org.springframework.boot:spring-boot-starter-test")
+    testCompile "org.mockito:mockito-core:1.+"
 }
 
 bootRun {
