@@ -19,4 +19,5 @@ public interface SiteFileReaderService {
 	 * @return        true if the input file was read.
 	 */
 	boolean readFile(Path path, BlockingQueue<SiteBunch> queue);
+	
 }
