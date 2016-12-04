@@ -28,31 +28,33 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
+@ActiveProfiles("test")
 public class JsonSiteReaderServiceTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
 	@Autowired
-	private ApplicationProperties properties;
+	private ApplicationProperties appProps;
 
 	@Autowired
 	private SiteFileReaderService jsonSiteFileReaderService;
 
 	@Before
 	public void beforeTest() {
-		Mockito.reset(properties);
+		Mockito.reset(appProps);
 	}
 
 	@Test
-	public void givenFileWithValidData_ReadFile_ShouldReturnTrue()
+	public void givenFileWithValidData_ReadFile_ThenReturnTrue()
 	        throws InterruptedException, ExecutionException, IOException {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(100);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(100);
 
 		Path temp = createValidJsonFile();
 
@@ -73,7 +75,7 @@ public class JsonSiteReaderServiceTest {
 
 	@Test
 	public void givenInputFiles150Rows_WhenRead_ThenReturn2SizeQueue() throws Exception {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(100);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(100);
 
 		StringBuilder content = new StringBuilder(10000);
 		content.append("[\n");
@@ -100,8 +102,8 @@ public class JsonSiteReaderServiceTest {
 
 	@Test
 	public void givenMoreDataThanSizeOfQueueWithTimeOut10_WhenRead_ThenReturnFalse() throws Exception {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(1);
-		when(properties.getProducerConsumerOfferTimeOut()).thenReturn(10);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(1);
+		when(appProps.getProducerConsumerOfferTimeOut()).thenReturn(10);
 
 		Path temp = createValidJsonFile();
 
@@ -113,8 +115,8 @@ public class JsonSiteReaderServiceTest {
 
 	@Test
 	public void givenMoreDataThanSizeOfQueueWithTimeOut0_WhenRead_ThenReturnFalse() throws Exception {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(1);
-		when(properties.getProducerConsumerOfferTimeOut()).thenReturn(0);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(1);
+		when(appProps.getProducerConsumerOfferTimeOut()).thenReturn(0);
 
 		Path temp = createValidJsonFile();
 
@@ -141,7 +143,7 @@ public class JsonSiteReaderServiceTest {
 
 	@Test
 	public void givenNoValidFileCharset_WhenRead_ThenReturnTrue() throws Exception {
-		when(properties.getFileCharset()).thenReturn("a");
+		when(appProps.getFileCharset()).thenReturn("a");
 
 		Path temp = createValidJsonFile();
 
@@ -153,11 +155,11 @@ public class JsonSiteReaderServiceTest {
 
 	@Test
 	public void givenInputFileWithWrongCharset_WhenRead_ThenReturnNoValidSite() throws Exception {
-		when(properties.getFileCharset()).thenReturn("CP1251");
+		when(appProps.getFileCharset()).thenReturn("CP1251");
 
 		Path temp = folder.newFile("input2.json").toPath();
 		String content = "[\n"
-		        + "{\"site_id\": \"13000\", \"name\": \"пример.ру/json1\", \"mobile\": 1, \"score\": 21.003 },\n"
+		        + "{\"site_id\": \"13000\", \"name\": \"пример.ру/json1\", \"mobile\": 1, \"score\": 21.003 }\n"
 		        + "]\n";
 		Files.write(temp, content.getBytes());
 
@@ -167,7 +169,7 @@ public class JsonSiteReaderServiceTest {
 		assertTrue(result);
 
 		SiteBunch bunch = queue.take();
-		assertEquals(bunch.getCollectionId(), "input1.csv");
+		assertEquals(bunch.getCollectionId(), "input2.json");
 
 		List<Site> sites = bunch.getSites();
 		System.out.println("" + sites);

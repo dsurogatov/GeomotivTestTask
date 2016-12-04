@@ -15,6 +15,7 @@ public interface SiteFileReaderService {
 	/** Read data from an input file and convert it to the list of Site instanties
 	 * 
 	 * @param path    A path instance where the input file exists.
+	 * @param queue   The buffer is used for exchanging data.
 	 * 
 	 * @return        true if the input file was read.
 	 */

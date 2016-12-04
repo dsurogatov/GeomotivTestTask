@@ -18,17 +18,17 @@ public class SiteFileReaderServiceLocatorTest {
     private SiteFileReaderServiceLocator locator;
 
     @Test
-    public void whenPassNullExt_ThenreturnService() {
+    public void whenPassNullExt_ThenReturnService() {
         TestCase.assertNotNull(locator.resolve(null));
     }
 
     @Test
-    public void whenPassEmptyExt_ThenreturnService() {
+    public void whenPassEmptyExt_ThenReturnService() {
         TestCase.assertNotNull(locator.resolve(""));
     }
 
     @Test
-    public void whenPassValidExt_ThenreturnService() {
+    public void whenPassValidExt_ThenReturnService() {
         TestCase.assertNotNull(locator.resolve("ext"));
     }
 }

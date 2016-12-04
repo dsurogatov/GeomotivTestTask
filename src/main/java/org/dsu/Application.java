@@ -1,14 +1,13 @@
 package org.dsu;
 
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
 
-import org.dsu.common.Constant;
 import org.dsu.component.worker.Worker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -26,19 +25,6 @@ public class Application implements CommandLineRunner {
         return new SimpleAsyncTaskExecutor();
     }
     
-    @Value("${" + Constant.PARAM_INPUT_FILES_NAMES + ":" + Constant.DEFAULT_PARAM_INPUT_FILES_NAMES + "}")
-    private String inputFilesProperty;
-    @Value("${" + Constant.PARAM_INPUT_FILES_NAMES_SEPARATOR + ":" + Constant.DEFAULT_PARAM_INPUT_FILES_NAMES_SEPARATOR + "}")
-    private String separatorFilesProperty;
-	
-	// PLAN
-	// делаем параметр через файл пропертей, там передаем список файлов через запятую
-
-	// делаем бин, в котором используем проперти, параметр к файлам
-	// который разгребает списки файлов, парсит имена, валидирует и отправляет на обработку нужным бинам
-	
-	// делаем второй бин, консумер, котороый тупо принимает от продусеров пакеты данных, он их пишет в файл
-	
 //	/** 
 //	 * Get a result from a future object
 //	 * 
@@ -68,7 +54,7 @@ public class Application implements CommandLineRunner {
 		LOG.info("App start ================================== ");
 		LOG.info("Args: {}", Arrays.toString(args));
 		
-		fileReaderWorker.start(null);
+		fileReaderWorker.start(new ArrayBlockingQueue<>(100));
 
 //		Future<List<Site>> csvResult = csvSiteFileReaderService.readFile(args[0], CSV_FILE);
 //		Future<List<Site>> jsonResult = jsonSiteFileReaderService.readFile(args[0], JSON_FILE);

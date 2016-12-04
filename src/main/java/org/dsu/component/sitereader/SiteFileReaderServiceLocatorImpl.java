@@ -4,17 +4,12 @@
 package org.dsu.component.sitereader;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Future;
 
 import org.dsu.common.Constant;
-import org.dsu.domain.Site;
 import org.dsu.domain.SiteBunch;
 import org.dsu.service.sitereader.SiteFileReaderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 

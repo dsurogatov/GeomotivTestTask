@@ -9,7 +9,7 @@ package org.dsu.common;
  */
 public final class Constant {
 	
-	public static final String PARAM_INPUT_FOLDER_NAME = "inputFolder";
+	public static final String PARAM_INPUT_FOLDER_NAME = "input.folder";
 	public static final String PARAM_INPUT_FILES_NAMES = "input.files";
 	public static final String PARAM_INPUT_FILES_NAMES_SEPARATOR = "input.files.separator";
 	public static final String PARAM_PRODUCER_CONSUMER_UNIT_SIZE = "producer.consumer.unit.size";

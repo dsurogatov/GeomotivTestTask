@@ -1,8 +1,9 @@
 package org.dsu.component.worker;
 
-import java.util.Map;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
 
+import org.dsu.domain.SiteBunch;
 import org.springframework.scheduling.annotation.AsyncResult;
 
 /** The Worker interface provides a method for starting 
@@ -17,11 +18,11 @@ public interface Worker {
 
     /** Start a task.
      * 
-     * @param params A map of parameters for processing a task.
+     * @param queue The buffer is used for exchanging data. 
      * 
      * @return An instance of the Future class  
      *         If Future.get return true, when the task has finished without errors,
      *         otherwise a problem has happened. 
      */
-    Future<Boolean> start(Map<String, Object> params);
+    Future<Boolean> start(BlockingQueue<SiteBunch> queue);
 }

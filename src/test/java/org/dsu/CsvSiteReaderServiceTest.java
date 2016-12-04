@@ -1,8 +1,15 @@
 package org.dsu;
 
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,31 +34,33 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
+@ActiveProfiles("test")
 public class CsvSiteReaderServiceTest {
 
 	@Rule
 	public TemporaryFolder folder = new TemporaryFolder();
 
 	@Autowired
-	private ApplicationProperties properties;
+	private ApplicationProperties appProps;
 
 	@Autowired
 	private SiteFileReaderService csvSiteFileReaderService;
 	
 	@Before
 	public void beforeTest() {
-		Mockito.reset(properties);
+		Mockito.reset(appProps);
 	}
 
 	@Test
 	public void givenFileWithValidData_ReadFile_ShouldReturnTrue()
 	        throws InterruptedException, ExecutionException, IOException {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(100);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(100);
 
 		Path temp = createValidCsvFile();
 
@@ -74,7 +83,7 @@ public class CsvSiteReaderServiceTest {
 
 	@Test
 	public void givenInputFiles150Rows_WhenRead_ThenReturn2SizeQueue() throws Exception {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(100);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(100);
 
 		StringBuilder content = new StringBuilder(10000);
 		content.append("id,name,is mobile,score\n");
@@ -98,8 +107,8 @@ public class CsvSiteReaderServiceTest {
 
 	@Test
 	public void givenMoreDataThanSizeOfQueueWithTimeOut10_WhenRead_ThenReturnFalse() throws Exception {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(1);
-		when(properties.getProducerConsumerOfferTimeOut()).thenReturn(10);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(1);
+		when(appProps.getProducerConsumerOfferTimeOut()).thenReturn(10);
 
 		Path temp = createValidCsvFile();
 
@@ -111,8 +120,8 @@ public class CsvSiteReaderServiceTest {
 
 	@Test
 	public void givenMoreDataThanSizeOfQueueWithTimeOut0_WhenRead_ThenReturnFalse() throws Exception {
-		when(properties.getProducerConsumerUnitSize()).thenReturn(1);
-		when(properties.getProducerConsumerOfferTimeOut()).thenReturn(0);
+		when(appProps.getProducerConsumerUnitSize()).thenReturn(1);
+		when(appProps.getProducerConsumerOfferTimeOut()).thenReturn(0);
 
 		Path temp = createValidCsvFile();
 
@@ -138,7 +147,7 @@ public class CsvSiteReaderServiceTest {
 
 	@Test
 	public void givenNotValidFileCharset_WhenRead_ThenReturnTrue() throws Exception {
-		when(properties.getFileCharset()).thenReturn("a");
+		when(appProps.getFileCharset()).thenReturn("a");
 		
 		Path temp = createValidCsvFile();
 
@@ -150,7 +159,7 @@ public class CsvSiteReaderServiceTest {
 	
 	@Test
 	public void givenInputFileWithWrongCharset_WhenRead_ThenReturnNoValidSite() throws Exception {
-		when(properties.getFileCharset()).thenReturn("CP1251");
+		when(appProps.getFileCharset()).thenReturn("CP1251");
 		
 		Path temp = folder.newFile("input1.csv").toPath();
 		String content = "id,name,is mobile,score\n" + 

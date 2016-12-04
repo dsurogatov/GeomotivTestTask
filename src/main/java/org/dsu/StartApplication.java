@@ -1,5 +1,6 @@
 package org.dsu;
 
+import org.dsu.common.Constant;
 import org.springframework.boot.SpringApplication;
 
 public class StartApplication {
@@ -11,6 +12,8 @@ public class StartApplication {
                     + "arg2      the output file name");
             return;
         }
+        
+        System.setProperty(Constant.PARAM_INPUT_FOLDER_NAME, args[0]);
         
         SpringApplication.run(Application.class, args);
     }

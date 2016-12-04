@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 /**
@@ -15,6 +16,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
  */
 @Configuration
 @ComponentScan({ "org.dsu.service" })
+@Profile("test")
 public class TestConfig {
 
 	@Bean
@@ -23,7 +25,7 @@ public class TestConfig {
 	}
 	
 	@Bean
-	public ApplicationProperties properties() {
+	public ApplicationProperties appProps() {
 	    return Mockito.mock(ApplicationProperties.class);
 	}
 }
