@@ -193,7 +193,7 @@ public class JsonSiteReaderServiceTest {
 	}
 
 	@Test
-	public void givenNoExistsFile_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+	public void givenNoExistsFile_WhenRead_ThenReturnFalse() throws InterruptedException, ExecutionException {
 		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
 		boolean result = jsonSiteFileReaderService.readFile(new File("a/b").toPath(), queue);
 		assertEquals(queue.isEmpty(), true);
@@ -201,7 +201,7 @@ public class JsonSiteReaderServiceTest {
 	}
 
 	@Test
-	public void givenNullPath_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+	public void givenNullPath_WhenRead_ThenReturnFalse() throws InterruptedException, ExecutionException {
 		BlockingQueue<SiteBunch> queue = new ArrayBlockingQueue<>(1);
 		boolean result = jsonSiteFileReaderService.readFile(null, queue);
 		assertEquals(queue.isEmpty(), true);
@@ -209,7 +209,7 @@ public class JsonSiteReaderServiceTest {
 	}
 
 	@Test
-	public void givenNullQueue_WhenRead_ShouldReturnFalse() throws InterruptedException, ExecutionException {
+	public void givenNullQueue_WhenRead_ThenReturnFalse() throws InterruptedException, ExecutionException {
 		boolean result = jsonSiteFileReaderService.readFile(new File("a/b").toPath(), null);
 		assertFalse(result);
 	}

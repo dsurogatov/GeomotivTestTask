@@ -78,6 +78,18 @@ class JsonSiteFileReaderService extends AbstractSiteFileReaderService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JsonSiteFileReaderService.class);
 	
+	private final JsonFactory factory;
+	private final ObjectMapper mapper;
+	
+	JsonSiteFileReaderService() {
+		mapper = new ObjectMapper();
+		SimpleModule module = new SimpleModule();
+		module.addDeserializer(Site.class, new SiteJsonDeserializer());
+		mapper.registerModule(module);
+		factory = new JsonFactory();
+		factory.setCodec(mapper);
+	}
+	
 	@Override
 	@Async
 	public boolean readFile(Path path, BlockingQueue<SiteBunch> queue) {
@@ -87,14 +99,7 @@ class JsonSiteFileReaderService extends AbstractSiteFileReaderService {
 		
 		String collectionId = path.getFileName().toString();
 
-		ObjectMapper mapper = new ObjectMapper();
-		SimpleModule module = new SimpleModule();
-		module.addDeserializer(Site.class, new SiteJsonDeserializer());
-		mapper.registerModule(module);
-		JsonFactory f = new JsonFactory();
-		f.setCodec(mapper);
-		
-		try(JsonParser jp = f.createParser(Files.newBufferedReader(path, getCharset()))) {
+		try(JsonParser jp = factory.createParser(Files.newBufferedReader(path, getCharset()))) {
 
 			jp.nextToken();
 			SiteReader reader = new SiteReader() {
