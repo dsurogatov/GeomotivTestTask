@@ -11,11 +11,13 @@ import java.util.List;
  * @author nescafe
  */
 public class SiteBunch {
+	
+	public static final SiteBunch POISON = new SiteBunch();
 
 	private String collectionId = "";
 	private List<Site> sites = new ArrayList<Site>();
 	
-	public SiteBunch() {
+	private SiteBunch() {
 		
 	}
 
@@ -28,15 +30,8 @@ public class SiteBunch {
 		return collectionId;
 	}
 
-	public void setCollectionId(String collectionId) {
-		this.collectionId = collectionId;
-	}
-
 	public List<Site> getSites() {
-		return sites;
+		return new ArrayList<Site>(sites);
 	}
 
-	public void setSites(List<Site> sites) {
-		this.sites = sites;
-	}
 }

@@ -9,6 +9,8 @@ import java.util.concurrent.BlockingQueue;
 import org.dsu.common.Constant;
 import org.dsu.domain.SiteBunch;
 import org.dsu.service.sitereader.SiteFileReaderService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -20,14 +22,17 @@ import org.springframework.util.StringUtils;
  */
 @Component
 public class SiteFileReaderServiceLocatorImpl implements SiteFileReaderServiceLocator {
-
+	
     private final static SiteFileReaderService EMPTY_SITE_FILE_READER_SERVICE = new SiteFileReaderService() {
 
         @Override
         public boolean readFile(Path path, BlockingQueue<SiteBunch> queue) {
-            return true;
+        	LOG.error("The SiteFileReader has not found for the file '{}'.", path.toString());
+            return false;
         }
     };
+    
+    private static final Logger LOG = LoggerFactory.getLogger(SiteFileReaderServiceLocatorImpl.class);
 
     @Autowired
     private SiteFileReaderService jsonSiteFileReaderService;

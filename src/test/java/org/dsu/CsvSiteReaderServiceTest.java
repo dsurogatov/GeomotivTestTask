@@ -133,7 +133,7 @@ public class CsvSiteReaderServiceTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void givenQueueOfferThrowsException_WhenRead_ThenReturnFalse() throws Exception {
+	public void givenQueueOfferMethodThrowsException_WhenRead_ThenReturnFalse() throws Exception {
 		BlockingQueue<SiteBunch> queue = mock(BlockingQueue.class);
 		when(queue.offer(Mockito.any(SiteBunch.class), eq(0l), eq(TimeUnit.MILLISECONDS))).thenThrow(InterruptedException.class);
 

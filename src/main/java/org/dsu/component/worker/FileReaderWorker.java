@@ -12,10 +12,13 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.dsu.common.Constant;
 import org.dsu.component.ApplicationProperties;
+import org.dsu.component.sitereader.SiteFileReaderServiceLocator;
 import org.dsu.domain.SiteBunch;
+import org.dsu.service.sitereader.SiteFileReaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,77 +34,102 @@ import org.springframework.util.StringUtils;
 @Component
 class FileReaderWorker implements Worker {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FileReaderWorker.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FileReaderWorker.class);
 
-    private static Set<Path> getFiles(String inputFilesNames, String inputFolderName, String inputFilesNamesSeparator) {
-        Set<Path> retSet = new HashSet<>();
+	private static Set<Path> getFiles(String inputFilesNames, String inputFolderName, String inputFilesNamesSeparator) {
+		Set<Path> retSet = new HashSet<>();
 
-        if (StringUtils.isEmpty(inputFilesNames) || StringUtils.isEmpty(inputFolderName)) {
-            return retSet;
-        }
+		if (StringUtils.isEmpty(inputFilesNames) || StringUtils.isEmpty(inputFolderName)) {
+			return retSet;
+		}
 
-        if (StringUtils.isEmpty(inputFilesNamesSeparator)) {
-            inputFilesNamesSeparator = Constant.DEFAULT_PARAM_INPUT_FILES_NAMES_SEPARATOR;
-        }
+		if (StringUtils.isEmpty(inputFilesNamesSeparator)) {
+			inputFilesNamesSeparator = Constant.DEFAULT_PARAM_INPUT_FILES_NAMES_SEPARATOR;
+		}
 
-        StringTokenizer tokenizer = new StringTokenizer(inputFilesNames, inputFilesNamesSeparator);
-        while (tokenizer.hasMoreTokens()) {
-            String fileUri = inputFolderName + File.separatorChar + tokenizer.nextToken();
-            LOG.debug("Input file is {}", fileUri);
+		StringTokenizer tokenizer = new StringTokenizer(inputFilesNames, inputFilesNamesSeparator);
+		while (tokenizer.hasMoreTokens()) {
+			String fileUri = inputFolderName + File.separatorChar + tokenizer.nextToken().trim();
+			LOG.debug("Input file is {}", fileUri);
 
-            Path pathFile = Paths.get(fileUri);
-            if (Files.exists(pathFile)) {
-                retSet.add(pathFile);
-            }
-        }
+			Path pathFile = Paths.get(fileUri);
+			if (Files.exists(pathFile)) {
+				retSet.add(pathFile);
+			}
+		}
 
-        return retSet;
-    }
-    
-    @Autowired
-	ApplicationProperties appProps;
+		return retSet;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.dsu.component.worker.Worker#start()
-     */
-    @Override
-    @Async
-    public Future<Boolean> start(BlockingQueue<SiteBunch> queue) {
-    	if(queue == null) {
-    		LOG.info("The variable 'queue' is not set.");
-            return RETURN_FAIL;
-    	}
-    	
-        String inputFolderName = appProps.getInputFolderName();
-        if (inputFolderName == null) {
-        	LOG.info("The variable 'inputFolderName' is not set.");
-            return RETURN_FAIL;
-        }
-        if (!Files.exists(Paths.get(inputFolderName))) {
-        	LOG.info("The folder '{}' is not exist.", inputFolderName);
-            return RETURN_FAIL;
-        }
+	private static String getExtensionFile(String fileName) {
+		if (StringUtils.isEmpty(fileName)) {
+			return "";
+		}
 
-        String inputFilesNames = appProps.getInputFilesNames();
-        String inputFilesNamesSeparator = appProps.getInputFilesNamesSeparator();
-        Set<Path> inputFiles = getFiles(inputFilesNames, inputFolderName, inputFilesNamesSeparator);
-        if (inputFiles.isEmpty()) {
-        	LOG.info("Files '{}' is not exist. The separator is '{}'.", inputFilesNames, inputFilesNamesSeparator);
-            return RETURN_FAIL;
-        }
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Start. The input folder is '{}'. Input files are '{}'.", inputFolderName, inputFilesNames);
-        }
+		int i = fileName.lastIndexOf('.');
+		int p = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+		if (i > p) {
+			return fileName.substring(i + 1);
+		}
+		return "";
+	}
 
-        // TODO Auto-generated method stub
-        inputFiles.forEach(path -> {
-            
-        });
+	@Autowired
+	private ApplicationProperties appProps;
 
-        return RETURN_OK;
-    }
+	@Autowired
+	private SiteFileReaderServiceLocator serviceLocator;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.dsu.component.worker.Worker#start()
+	 */
+	@Override
+	@Async
+	public Future<Boolean> start(BlockingQueue<SiteBunch> queue) {
+		if (queue == null) {
+			LOG.info("The variable 'queue' is not set.");
+			return RETURN_FAIL;
+		}
+
+		String inputFolderName = appProps.getInputFolderName();
+		if (inputFolderName == null) {
+			LOG.info("The variable 'inputFolderName' is not set.");
+			return RETURN_FAIL;
+		}
+		if (!Files.exists(Paths.get(inputFolderName))) {
+			LOG.info("The folder '{}' is not exist.", inputFolderName);
+			return RETURN_FAIL;
+		}
+
+		String inputFilesNames = appProps.getInputFilesNames();
+		String inputFilesNamesSeparator = appProps.getInputFilesNamesSeparator();
+		Set<Path> inputFiles = getFiles(inputFilesNames, inputFolderName, inputFilesNamesSeparator);
+		if (inputFiles.isEmpty()) {
+			LOG.info("Files '{}' is not exist. The separator is '{}'.", inputFilesNames, inputFilesNamesSeparator);
+			return RETURN_FAIL;
+		}
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Start. The input folder is '{}'. Input files are '{}'.", inputFolderName, inputFilesNames);
+		}
+
+		for (Path path : inputFiles) {
+			SiteFileReaderService service = serviceLocator.resolve(getExtensionFile(path.toString()));
+			if (!service.readFile(path, queue)) {
+				return RETURN_FAIL;
+			}
+		}
+
+		try {
+			queue.offer(SiteBunch.POISON, appProps.getProducerConsumerOfferTimeOut(), TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			LOG.error("Cannot put SiteBunch.POISON to the queue.");
+			return RETURN_FAIL;
+		}
+
+		return RETURN_OK;
+	}
 
 }
