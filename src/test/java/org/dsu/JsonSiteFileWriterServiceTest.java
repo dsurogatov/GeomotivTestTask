@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 import org.dsu.domain.Site;
 import org.dsu.domain.SiteBunch;
@@ -16,11 +18,13 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { TestConfig.class })
+@ActiveProfiles("test")
 public class JsonSiteFileWriterServiceTest {
 
 	@Rule
@@ -30,7 +34,7 @@ public class JsonSiteFileWriterServiceTest {
 	private SiteFileWriterService jsonSiteFileWriterService;
 
 	@Test
-	public void writeFile_Write2File_ReadJSON_TestWithExpectedString() throws Exception {
+	public void givenSiteBunch_WhenWriteFile_ThenTestWrittenFileWithExpectedString() throws Exception {
 		File temp = folder.newFile("output.json");
 
 		Site site = new Site();
@@ -42,10 +46,10 @@ public class JsonSiteFileWriterServiceTest {
 		List<Site> sites = new ArrayList<Site>();
 		sites.add(site);
 		SiteBunch bunch = new SiteBunch("input1.csv", sites);
-		List<SiteBunch> bunches = new ArrayList<>();
+		BlockingQueue<SiteBunch> bunches = new ArrayBlockingQueue<>(10);
 		bunches.add(bunch);
 
-		jsonSiteFileWriterService.writeFile(temp.getCanonicalPath(), bunches);
+		jsonSiteFileWriterService.writeFile(temp.toPath(), bunches);
 
 		String jsonWritten = new String(Files.readAllBytes(Paths.get(temp.getCanonicalPath())));
 		String expectedJSON = "[ {" 

@@ -3,6 +3,7 @@ package org.dsu.worker;
 import org.dsu.component.sitereader.SiteFileReaderServiceLocator;
 import org.dsu.component.sitereader.SiteFileReaderServiceLocatorImpl;
 import org.dsu.service.sitereader.SiteFileReaderService;
+import org.dsu.service.sitewriter.SiteFileWriterService;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,6 +28,11 @@ public class WorkerTestConfig {
 	@Bean
 	public SiteFileReaderService jsonSiteFileReaderService() {
 		return Mockito.mock(SiteFileReaderService.class);
+	}
+
+	@Bean
+	public SiteFileWriterService jsonSiteFileWriterService() {
+		return Mockito.mock(SiteFileWriterService.class);
 	}
 	
 	@Bean

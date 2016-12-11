@@ -1,6 +1,7 @@
 package org.dsu.service.sitewriter;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.util.concurrent.BlockingQueue;
 
 import org.dsu.domain.SiteBunch;
 
@@ -12,10 +13,10 @@ public interface SiteFileWriterService {
 
 	/** Write to the file
 	 * 
-	 * @param fileName 		 A file name
-	 * @param siteBunches    A list of bunchies
+	 * @param path     A path
+	 * @param queue    A queue of bunchies
 	 * 
-	 * @exception   If an error occurs
+	 * @return         true if data has written
 	 */
-	void writeFile(String fileName, List<SiteBunch> siteBunches) throws Exception;
+	boolean writeFile(Path path, BlockingQueue<SiteBunch> queue);
 }

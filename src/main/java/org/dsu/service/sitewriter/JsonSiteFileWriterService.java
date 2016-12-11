@@ -3,12 +3,16 @@
  */
 package org.dsu.service.sitewriter;
 
-import java.io.File;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.concurrent.BlockingQueue;
 
 import org.dsu.domain.Site;
 import org.dsu.domain.SiteBunch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -54,6 +58,8 @@ public class JsonSiteFileWriterService implements SiteFileWriterService {
 			jgen.writeEndObject();
 		}
 	}
+	
+	private static final Logger LOG = LoggerFactory.getLogger(JsonSiteFileWriterService.class);
 
 	/*
 	 * (non-Javadoc)
@@ -61,12 +67,14 @@ public class JsonSiteFileWriterService implements SiteFileWriterService {
 	 * @see org.dsu.service.sitewriter.SiteFileWriter#writeFile(java.lang.String, java.util.List)
 	 */
 	@Override
-	public void writeFile(String fileName, List<SiteBunch> siteBunches) throws Exception {
-		if (fileName == null || fileName.trim().isEmpty()) {
-			throw new IllegalArgumentException("The param 'fileName' musn't be empty.");
+	public boolean writeFile(Path path, BlockingQueue<SiteBunch> queue) {
+		if (path == null) {
+			LOG.error("The param 'path' musn't be null.");
+			return false;
 		}
-		if (siteBunches == null) {
-			throw new IllegalArgumentException("The param 'siteBunches' musn't be null.");
+		if (queue == null) {
+			LOG.error("The param 'queue' musn't be null.");
+			return false;
 		}
 
 		ObjectMapper mapper = new ObjectMapper();
@@ -74,6 +82,12 @@ public class JsonSiteFileWriterService implements SiteFileWriterService {
 		module.addSerializer(Site.class, new SiteSerializer());
 		mapper.registerModule(module);
 
-		mapper.writerWithDefaultPrettyPrinter().writeValue(new File(fileName), siteBunches);
+		try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+			mapper.writerWithDefaultPrettyPrinter().writeValue(writer, queue);
+			return true;
+		} catch (Exception e) {
+			LOG.error("Error while is writing file: {}.", path.toString(), e);
+		} 
+		return false;
 	}
 }

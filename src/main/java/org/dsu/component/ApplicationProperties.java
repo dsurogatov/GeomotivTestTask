@@ -21,6 +21,9 @@ public class ApplicationProperties {
 	@Value("${" + Constant.PARAM_INPUT_FILES_NAMES_SEPARATOR + ":" + Constant.DEFAULT_PARAM_INPUT_FILES_NAMES_SEPARATOR + "}")
 	private String inputFilesNamesSeparator;
 
+	@Value("${" + Constant.PARAM_OUTPUT_FILE_NAME + ":" + Constant.DEFAULT_PARAM_OUTPUT_FILE_NAME + "}")
+	private String outputFileName;
+
 	@Value("${" + Constant.PARAM_PRODUCER_CONSUMER_UNIT_SIZE + ":100}")
 	private int producerConsumerUnitSize;
 
@@ -78,6 +81,13 @@ public class ApplicationProperties {
 	 */
 	public String getInputFilesNamesSeparator() {
 		return inputFilesNamesSeparator;
+	}
+
+	/** Returns the name of the output file.
+	 * @return The value of the file name.
+	 */
+	public String getOutputFileName() {
+		return outputFileName;
 	}
 
 }
