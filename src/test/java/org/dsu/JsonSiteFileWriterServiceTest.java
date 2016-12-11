@@ -34,7 +34,7 @@ public class JsonSiteFileWriterServiceTest {
 	private SiteFileWriterService jsonSiteFileWriterService;
 
 	@Test
-	public void givenSiteBunch_WhenWriteFile_ThenTestWrittenFileWithExpectedString() throws Exception {
+	public void givenSiteBunch_WhenWriteFile_ThenAssertWrittenFileWithExpectedString() throws Exception {
 		File temp = folder.newFile("output.json");
 
 		Site site = new Site();
@@ -45,8 +45,10 @@ public class JsonSiteFileWriterServiceTest {
 		site.setScore(new BigDecimal("21.33"));
 		List<Site> sites = new ArrayList<Site>();
 		sites.add(site);
+		//sites.add(site);
 		SiteBunch bunch = new SiteBunch("input1.csv", sites);
 		BlockingQueue<SiteBunch> bunches = new ArrayBlockingQueue<>(10);
+		bunches.add(bunch);
 		bunches.add(bunch);
 
 		jsonSiteFileWriterService.writeFile(temp.toPath(), bunches);
@@ -60,9 +62,9 @@ public class JsonSiteFileWriterServiceTest {
 						+ "    \"mobile\" : 1," 
 						+ "    \"keywords\" : \"key1,key2\","
 						+ "    \"score\" : 21.33" 
-						+ "  } "
-						+ "]" 
+						+ "  } ]"
 						+ "} ]";
+		System.out.println(jsonWritten);
 		JSONAssert.assertEquals(expectedJSON, jsonWritten, false);
 	}
 }
