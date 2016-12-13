@@ -68,4 +68,10 @@ public interface SiteWriterTemplate {
 	 * @throws Exception
 	 */
 	SiteWriterTemplate finish() throws Exception;
+	
+	/** Stops available to write data
+	 * 
+	 * @throws Exception
+	 */
+	void close()  throws Exception;
 }

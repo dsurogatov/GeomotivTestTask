@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * 
  * @author nescafe
  */
-public class Site {
+public class Site implements Cloneable {
 
 	private int id;
 	private String name = "";
@@ -59,5 +59,9 @@ public class Site {
 	public String toString() {
 		return "Site [id=" + id + ", name=" + name + ", mobile=" + mobile + ", keywords=" + keywords + ", score="
 		        + score + "]";
+	}
+	
+	public Site clone() throws CloneNotSupportedException {
+	    return (Site) super.clone();
 	}
 }
