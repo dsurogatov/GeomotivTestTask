@@ -58,7 +58,7 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 	}
 
 	@Autowired
-	ApplicationProperties appProp;
+	ApplicationProperties appProps;
 
 	abstract Logger logger();
 
@@ -67,7 +67,7 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 		while (reader.readNext()) {
 			sites.add(reader.createSite());
 
-			if (sites.size() == appProp.getProducerConsumerUnitSize()) {
+			if (sites.size() == appProps.getProducerConsumerUnitSize()) {
 				if (!put2queue(queue, sites, collectionId)) {
 					return false;
 				}
@@ -85,9 +85,9 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 	Charset getCharset() {
 		Charset charset = StandardCharsets.UTF_8;
 		try {
-			charset = Charset.forName(appProp.getFileCharset());
+			charset = Charset.forName(appProps.getFileCharset());
 		} catch (Exception e) {
-			logger().warn("Wrong charset name '{}'. Exception message is '{}'", appProp.getFileCharset(),
+			logger().warn("Wrong charset name '{}'. Exception message is '{}'", appProps.getFileCharset(),
 			        e.getMessage());
 		}
 		return charset;
@@ -96,7 +96,7 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 	private boolean put2queue(BlockingQueue<SiteBunch> queue, List<Site> sites, String collectionId)
 	        throws InterruptedException {
 		boolean result = queue.offer(new SiteBunch(collectionId, new ArrayList<>(sites)),
-		        appProp.getProducerConsumerOfferTimeOut(), TimeUnit.MILLISECONDS);
+		        appProps.getProducerConsumerOfferTimeOut(), TimeUnit.MILLISECONDS);
 		if (!result) {
 			logger().error("The worker's queue is full then offers data.");
 		}
