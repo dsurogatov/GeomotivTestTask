@@ -23,7 +23,7 @@ public class SimpleFillSiteKeywordServiceTest {
 	private FillSiteKeywordService service;
 	
 	@Test
-	public void fillKeywords_Valid_ShouldFillKeywordsField() {
+	public void givenSiteWithEmptyName_WhenFillKeywords_ThenReturnEmptyKeywords() {
 		List<Site> sites = new ArrayList<>();
 		Site siteWithNullName = new Site();
 		siteWithNullName.setName(null);
@@ -40,7 +40,7 @@ public class SimpleFillSiteKeywordServiceTest {
 	}
 	
 	@Test
-	public void fillKeywords_NullParams_ShouldReturnEmptyList() {
+	public void givenNullSitesParam_WhenFillKeywords_ThenReturnEmptyList() {
 		List<Site> sites = service.fillKeywords(null);
 		TestCase.assertEquals(sites.size(), 0);
 	}
