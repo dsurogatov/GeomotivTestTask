@@ -10,7 +10,6 @@ import org.dsu.domain.Site;
 import org.dsu.domain.SiteBunch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -91,7 +90,6 @@ class JsonSiteFileReaderService extends AbstractSiteFileReaderService {
 	}
 	
 	@Override
-	@Async
 	public boolean readFile(Path path, BlockingQueue<SiteBunch> queue) {
 		if (!checkInputParams(path, queue, LOG)) {
 			return false;

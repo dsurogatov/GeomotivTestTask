@@ -5,30 +5,32 @@ import org.dsu.component.sitereader.SiteFileReaderServiceLocator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import junit.framework.TestCase;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { TestConfig.class })
+@ContextConfiguration(classes = { TestConfig.class, WorkerTestConfig.class })
+@ActiveProfiles("test")
 public class SiteFileReaderServiceLocatorTest {
     
     @Autowired
-    private SiteFileReaderServiceLocator locator;
+    private SiteFileReaderServiceLocator serviceLocator;
 
     @Test
     public void whenPassNullExt_ThenReturnService() {
-        TestCase.assertNotNull(locator.resolve(null));
+        TestCase.assertNotNull(serviceLocator.resolve(null));
     }
 
     @Test
     public void whenPassEmptyExt_ThenReturnService() {
-        TestCase.assertNotNull(locator.resolve(""));
+        TestCase.assertNotNull(serviceLocator.resolve(""));
     }
 
     @Test
     public void whenPassValidExt_ThenReturnService() {
-        TestCase.assertNotNull(locator.resolve("ext"));
+        TestCase.assertNotNull(serviceLocator.resolve("ext"));
     }
 }

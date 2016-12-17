@@ -17,6 +17,7 @@ import org.dsu.domain.Site;
 import org.dsu.domain.SiteBunch;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 /**
  * Define common methods for ancestors
@@ -31,15 +32,15 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 
 		Site createSite() throws Exception;
 	}
-	
-	/** Check input params
+
+	/**
+	 * Check input params
 	 * 
-	 * @param path   The input file.
-	 * @param queue  The queue for exchanging between workers.
-	 * @param LOG    The logger, which writes log messages.
+	 * @param path The input file.
+	 * @param queue The queue for exchanging between workers.
+	 * @param LOG The logger, which writes log messages.
 	 * 
-	 * @return   If the path or queue is null or file not exists then return false
-	 *           otherwise return true.
+	 * @return If the path or queue is null or file not exists then return false otherwise return true.
 	 */
 	static boolean checkInputParams(Path path, BlockingQueue<SiteBunch> queue, Logger logger) {
 		if (path == null) {
@@ -84,11 +85,13 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 
 	Charset getCharset() {
 		Charset charset = StandardCharsets.UTF_8;
-		try {
-			charset = Charset.forName(appProps.getFileCharset());
-		} catch (Exception e) {
-			logger().warn("Wrong charset name '{}'. Exception message is '{}'", appProps.getFileCharset(),
-			        e.getMessage());
+		if (!StringUtils.isEmpty(appProps.getFileCharset())) {
+			try {
+				charset = Charset.forName(appProps.getFileCharset());
+			} catch (Exception e) {
+				logger().warn("Wrong charset name for the input file '{}'. Exception message is '{}'",
+				        appProps.getFileCharset(), e.getMessage());
+			}
 		}
 		return charset;
 	}
@@ -102,5 +105,5 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 		}
 		return result;
 	}
-	
+
 }

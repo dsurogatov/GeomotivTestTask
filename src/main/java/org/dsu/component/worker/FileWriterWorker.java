@@ -13,6 +13,7 @@ import org.dsu.service.sitewriter.SiteFileWriterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -31,6 +32,7 @@ public class FileWriterWorker implements Worker {
 	private SiteFileWriterService jsonSiteFileWriterService;
 
 	@Override
+	@Async
 	public Future<Boolean> start(BlockingQueue<SiteBunch> queue) {
 		if(queue == null) {
 			LOG.error("The param 'queue' musn't be null.");

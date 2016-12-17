@@ -9,7 +9,8 @@ $ gradle build
 Then you can run the JAR file:
 $ java -jar build/libs/geomotive-test-task-0.1.0.jar ./input output.json
 
-If you are using Gradle, you can run the application using ./gradle bootRun  -Pargs="./input output.json" .
+If you are using Gradle, you can run the application using:
+$ gradle bootRun  -Pargs="./input output.json" .
 
 Run tests:
 $ gradle test

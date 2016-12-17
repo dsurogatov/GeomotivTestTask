@@ -14,6 +14,7 @@ public class StartApplication {
         }
         
         System.setProperty(Constant.PARAM_INPUT_FOLDER_NAME, args[0]);
+        System.setProperty(Constant.PARAM_OUTPUT_FILE_NAME, args[1]);
         
         SpringApplication.run(Application.class, args);
     }

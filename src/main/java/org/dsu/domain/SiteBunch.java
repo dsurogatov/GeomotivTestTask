@@ -24,7 +24,6 @@ public class SiteBunch {
 	}
 
 	public SiteBunch(String collectionId, List<Site> sites) {
-		// TODO add tests
 		if(StringUtils.isEmpty(collectionId)) {
 			throw new IllegalArgumentException("The param 'collectionId' must not be empty.");
 		}
