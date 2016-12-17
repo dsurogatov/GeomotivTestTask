@@ -89,17 +89,17 @@ class FileReaderWorker implements Worker {
 	@Async
 	public Future<Boolean> start(BlockingQueue<SiteBunch> queue) {
 		if (queue == null) {
-			LOG.info("The variable 'queue' is not set.");
+			LOG.error("The variable 'queue' is not set.");
 			return RETURN_FAIL;
 		}
 
 		String inputFolderName = appProps.getInputFolderName();
 		if (inputFolderName == null) {
-			LOG.info("The variable 'inputFolderName' is not set.");
+			LOG.error("The variable 'inputFolderName' is not set.");
 			return RETURN_FAIL;
 		}
 		if (!Files.exists(Paths.get(inputFolderName))) {
-			LOG.info("The folder '{}' is not exist.", inputFolderName);
+			LOG.error("The folder '{}' is not exist.", inputFolderName);
 			return RETURN_FAIL;
 		}
 
@@ -107,7 +107,7 @@ class FileReaderWorker implements Worker {
 		String inputFilesNamesSeparator = appProps.getInputFilesNamesSeparator();
 		Set<Path> inputFiles = getFiles(inputFilesNames, inputFolderName, inputFilesNamesSeparator);
 		if (inputFiles.isEmpty()) {
-			LOG.info("Files '{}' is not exist. The separator is '{}'.", inputFilesNames, inputFilesNamesSeparator);
+			LOG.error("Files '{}' are not exist. The separator is '{}'.", inputFilesNames, inputFilesNamesSeparator);
 			return RETURN_FAIL;
 		}
 

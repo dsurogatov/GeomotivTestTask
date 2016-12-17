@@ -64,7 +64,8 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 	abstract Logger logger();
 
 	boolean read(BlockingQueue<SiteBunch> queue, String collectionId, SiteReader reader) throws Exception {
-		List<Site> sites = new ArrayList<>();
+		List<Site> sites = new ArrayList<>(appProps.getProducerConsumerUnitSize());
+		logger().debug("ProducerConsumerUnitSize - '{}'", appProps.getProducerConsumerUnitSize());
 		while (reader.readNext()) {
 			sites.add(reader.createSite());
 
@@ -73,6 +74,7 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 					return false;
 				}
 				sites.clear();
+				Thread.yield();
 			}
 		}
 
@@ -98,6 +100,7 @@ public abstract class AbstractSiteFileReaderService implements SiteFileReaderSer
 
 	private boolean put2queue(BlockingQueue<SiteBunch> queue, List<Site> sites, String collectionId)
 	        throws InterruptedException {
+		//logger().debug("Offer the new bunch of sites...");
 		boolean result = queue.offer(new SiteBunch(collectionId, new ArrayList<>(sites)),
 		        appProps.getProducerConsumerOfferTimeOut(), TimeUnit.MILLISECONDS);
 		if (!result) {

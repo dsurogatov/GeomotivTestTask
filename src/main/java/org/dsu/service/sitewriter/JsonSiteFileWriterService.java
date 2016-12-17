@@ -76,6 +76,7 @@ public class JsonSiteFileWriterService implements SiteFileWriterService {
 			jsonTemplate.start();
 		
 			while(true) {
+				//LOG.debug("Poll the new bunch of sites...");
 				SiteBunch siteBunch = queue.poll(appProps.getProducerConsumerOfferTimeOut(), TimeUnit.MILLISECONDS);
 				if(siteBunch == null) {
 					LOG.error("The worker's queue is empty then polls data.");

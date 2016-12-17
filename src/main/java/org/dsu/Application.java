@@ -22,7 +22,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class Application implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-	private static final int EXCHANGE_QUEUE_SIZE = 10;
+	private static final int EXCHANGE_QUEUE_SIZE = 100;
 	
     @Bean
     public Executor taskExecutor() {
@@ -45,9 +45,11 @@ public class Application implements CommandLineRunner {
 		Future<Boolean> writerResult = fileWriterWorker.start(exchangingQueue);
 		
 		if(Boolean.FALSE.equals(readerResult.get())) {
+			writerResult.cancel(true);
 			throw new Exception("Error while reads input files.");
 		}
 		if(Boolean.FALSE.equals(writerResult.get())) {
+			readerResult.cancel(true);
 			throw new Exception("Error while writes the file.");
 		}
 
