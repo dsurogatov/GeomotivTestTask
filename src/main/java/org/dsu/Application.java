@@ -44,13 +44,12 @@ public class Application implements CommandLineRunner {
 		Future<Boolean> readerResult = fileReaderWorker.start(exchangingQueue);
 		Future<Boolean> writerResult = fileWriterWorker.start(exchangingQueue);
 		
-		if(Boolean.FALSE.equals(readerResult.get())) {
+		boolean readerResultValue = readerResult.get();
+		if(!readerResultValue) {
 			writerResult.cancel(true);
-			throw new Exception("Error while reads input files.");
 		}
-		if(Boolean.FALSE.equals(writerResult.get())) {
-			readerResult.cancel(true);
-			throw new Exception("Error while writes the file.");
+		if(Boolean.FALSE.equals(writerResult.get()) || !readerResultValue) {
+			throw new Exception("The job has failed.");
 		}
 
 		LOG.info("App stop ==================================");
